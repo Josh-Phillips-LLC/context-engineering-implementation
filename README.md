@@ -29,6 +29,13 @@ Governance contract consumption is pinned and validated via:
 
 CI enforces contract version compatibility and boundary constraints.
 
+## Boundary Gates
+
+Boundary drift is enforced by CI in:
+
+- `BOUNDARY_GATES.md`
+- `.github/workflows/validate-boundary-implementation.yml`
+
 ## Authority Boundary
 
 This repository is not the governance authority source. Governance policy decisions, approval rules, and protected-path definitions are authoritative in:
