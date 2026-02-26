@@ -67,6 +67,16 @@ def load_json(path: Path) -> Dict[str, List[str]]:
     return data  # type: ignore[return-value]
 
 
+def load_contract_lock(path: Path) -> Dict[str, object]:
+    if not path.is_file():
+        raise FileNotFoundError(f"Missing contract lock file: {path}")
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"Contract lock must be a JSON object: {path}")
+    return data
+
+
 def dedupe_preserve_order(items: List[str]) -> List[str]:
     seen = set()
     out: List[str] = []
@@ -144,16 +154,18 @@ def main() -> int:
     global_spec_path = repo_root / "10-templates/job-description-spec/global.json"
     role_spec_path = repo_root / f"10-templates/job-description-spec/roles/{role_slug}.json"
 
-    governance_file = repo_root / "governance.md"
+    governance_file = repo_root / "contracts/upstream/governance.md"
     charter_file = repo_root / f"00-os/role-charters/{role_slug}.md"
     base_instructions_file = repo_root / "10-templates/agent-instructions/base.md"
     role_instructions_file = repo_root / f"10-templates/agent-instructions/roles/{role_slug}.md"
+    contract_lock_file = repo_root / "contracts/governance-contract-lock.json"
 
     try:
         require_file(governance_file)
         require_file(charter_file)
         require_file(base_instructions_file)
         require_file(role_instructions_file)
+        contract_lock = load_contract_lock(contract_lock_file)
         global_spec = load_json(global_spec_path)
         role_spec = load_json(role_spec_path)
         merged = merge_specs(global_spec, role_spec)
@@ -166,8 +178,10 @@ def main() -> int:
         "",
         f"Role: {role_name}",
         f"Role-Slug: {role_slug}",
-        "Source-Repo: Context-Engineering",
+        "Source-Repo: Context-Engineering-Implementation",
         f"Source-Ref: {args.source_ref}",
+        f"Governance-Contract-Version: {contract_lock.get('contract_version', 'unknown')}",
+        f"Governance-Source-Commit: {contract_lock.get('source_commit', 'unknown')}",
         f"Generated-At-UTC: {generated_at_utc}",
         "Job-Description-Spec-Version: 1",
         "",
@@ -179,17 +193,19 @@ def main() -> int:
     lines.append("## Source Metadata")
     lines.append("")
     lines.append("- Canonical source chain (authoritative order):")
-    lines.append("  1. `governance.md`")
+    lines.append("  1. `contracts/upstream/governance.md`")
     lines.append("  2. `00-os/role-charters/`")
     lines.append("  3. `10-templates/agent-instructions/`")
     lines.append("  4. `10-templates/job-description-spec/`")
+    lines.append("  5. `contracts/governance-contract-lock.json`")
     lines.append("- Assembly inputs:")
     lines.append("  - `10-templates/job-description-spec/global.json`")
     lines.append(f"  - `10-templates/job-description-spec/roles/{role_slug}.json`")
     lines.append(f"  - `00-os/role-charters/{role_slug}.md`")
     lines.append("  - `10-templates/agent-instructions/base.md`")
     lines.append(f"  - `10-templates/agent-instructions/roles/{role_slug}.md`")
-    lines.append("  - `governance.md`")
+    lines.append("  - `contracts/upstream/governance.md`")
+    lines.append("  - `contracts/governance-contract-lock.json`")
     lines.append(f"- Builder: `10-templates/repo-starters/role-repo-template/scripts/{Path(__file__).name}`")
     lines.append("")
 

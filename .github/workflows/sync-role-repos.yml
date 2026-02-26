@@ -5,8 +5,13 @@ on:
     branches:
       - main
     paths:
-      - governance.md
+      - contracts/**
+      - CONTRACT_BOUNDARY.md
       - 00-os/role-charters/**
+      - 00-os/role-registry.yml
+      - 00-os/governed-repos.yml
+      - 00-os/scripts/validate-boundary-implementation.py
+      - 00-os/scripts/validate-governance-contract-consumption.py
       - 10-templates/agent-instructions/**
       - 10-templates/compliance-officer-pr-review-brief.md
       - 10-templates/job-description-spec/**
@@ -145,6 +150,13 @@ jobs:
       - name: Checkout repository
         if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
         uses: actions/checkout@v4
+
+      - name: Validate split-source contract and boundary gates
+        if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 00-os/scripts/validate-boundary-implementation.py
+          python3 00-os/scripts/validate-governance-contract-consumption.py
 
       - name: Configure git auth for gh operations
         if: ${{ steps.role_filter.outputs.run_sync == 'true' }}

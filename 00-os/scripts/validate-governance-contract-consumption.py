@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 UPSTREAM_CONTRACT_PATH = Path("contracts/upstream/governance-implementation-contract.json")
+UPSTREAM_GOVERNANCE_INPUT_PATH = Path("contracts/upstream/governance.md")
 LOCK_PATH = Path("contracts/governance-contract-lock.json")
 CONTRACT_BOUNDARY_PATH = Path("CONTRACT_BOUNDARY.md")
 VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
@@ -44,6 +45,12 @@ def main() -> int:
         lock = load_json(LOCK_PATH, "lock file")
     except RuntimeError as exc:
         return fail(str(exc))
+
+    if not UPSTREAM_GOVERNANCE_INPUT_PATH.exists():
+        return fail(
+            f"missing governance input mirror: {UPSTREAM_GOVERNANCE_INPUT_PATH} "
+            "(sync from context-engineering-governance before role sync runs)"
+        )
 
     for key in ("contract_id", "version", "compatibility", "governance_authoritative_paths"):
         if key not in upstream:

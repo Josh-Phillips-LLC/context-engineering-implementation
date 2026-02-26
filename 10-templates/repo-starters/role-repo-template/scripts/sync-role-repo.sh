@@ -386,7 +386,7 @@ Reviewed-By-Role: Compliance Officer
 Executive-Sponsor-Approval: Not-Required
 
 ## Summary
-Automated sync of role-repo managed artifacts from Context-Engineering source \`${SOURCE_REF}\` for role \`${ROLE_SLUG}\`.
+Automated sync of role-repo managed artifacts from Context-Engineering-Implementation source \`${SOURCE_REF}\` for role \`${ROLE_SLUG}\`.
 
 ## Managed Files Updated
 ${managed_files_markdown}
