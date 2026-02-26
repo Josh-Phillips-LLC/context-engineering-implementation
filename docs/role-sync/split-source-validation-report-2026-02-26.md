@@ -35,6 +35,19 @@ Matrix job outcomes in successful rerun:
 - `systems-architect`: success
 - `hr-ai-agent-specialist`: success
 
+## Role Repo Compliance Outcomes
+
+Sync-created PRs:
+- Implementation Specialist: https://github.com/Josh-Phillips-LLC/context-engineering-role-implementation-specialist/pull/8
+- Compliance Officer: https://github.com/Josh-Phillips-LLC/context-engineering-role-compliance-officer/pull/22
+- Systems Architect: https://github.com/Josh-Phillips-LLC/context-engineering-role-systems-architect/pull/10
+- HR AI Agent Specialist: https://github.com/Josh-Phillips-LLC/context-engineering-role-hr-ai-agent-specialist/pull/12
+
+Observed checks (all passing at validation capture time):
+- `governance-pr-gates`: pass on all four PRs
+- `Analyze` / `Analyze (python)` where applicable: pass
+- `CodeQL`: pass
+
 ## Blockers Detected and Resolved
 
 1. Missing mixed-layout dependency replacement:
