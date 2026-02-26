@@ -1,0 +1,43 @@
+name: Validate Governance Contract Consumption
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/**'
+      - 'CONTRACT_BOUNDARY.md'
+      - '00-os/scripts/validate-governance-contract-consumption.py'
+      - '.github/workflows/validate-governance-contract-consumption.yml'
+      - 'governance.md'
+      - 'context-flow.md'
+      - '00-os/adr/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'contracts/**'
+      - 'CONTRACT_BOUNDARY.md'
+      - '00-os/scripts/validate-governance-contract-consumption.py'
+      - '.github/workflows/validate-governance-contract-consumption.yml'
+      - 'governance.md'
+      - 'context-flow.md'
+      - '00-os/adr/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Governance Contract Consumption
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate contract lock and boundary
+        run: |
+          python3 00-os/scripts/validate-governance-contract-consumption.py

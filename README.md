@@ -19,6 +19,16 @@ Included in bootstrap:
 - generator sources under `10-templates/repo-starters/`
 - tooling configuration inputs (`00-os/role-registry.yml`, `00-os/governed-repos.yml`)
 
+## Contract Versioning
+
+Governance contract consumption is pinned and validated via:
+
+- `contracts/upstream/governance-implementation-contract.json`
+- `contracts/governance-contract-lock.json`
+- `00-os/scripts/validate-governance-contract-consumption.py`
+
+CI enforces contract version compatibility and boundary constraints.
+
 ## Authority Boundary
 
 This repository is not the governance authority source. Governance policy decisions, approval rules, and protected-path definitions are authoritative in:

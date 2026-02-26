@@ -1,0 +1,37 @@
+{
+  "contract_id": "context-engineering-governance-contract",
+  "version": "1.0.0",
+  "status": "active",
+  "authority": {
+    "governance_repo": "Josh-Phillips-LLC/context-engineering-governance",
+    "implementation_repo": "Josh-Phillips-LLC/context-engineering-implementation"
+  },
+  "compatibility": {
+    "semver": true,
+    "supported_major_for_current_impl": 1
+  },
+  "governance_authoritative_paths": [
+    "governance.md",
+    "context-flow.md",
+    "00-os/adr/**",
+    "00-os/role-charters/**",
+    "00-os/workflow.md"
+  ],
+  "implementation_consumes": [
+    "00-os/role-charters/**",
+    "00-os/role-registry.yml",
+    "00-os/governed-repos.yml",
+    "10-templates/agent-instructions/**",
+    "10-templates/job-description-spec/**",
+    "10-templates/repo-starters/**"
+  ],
+  "change_rules": {
+    "major": "breaking contract/interface changes",
+    "minor": "backward-compatible additive changes",
+    "patch": "editorial or non-interface corrections"
+  },
+  "references": {
+    "tracking_issue": "Josh-Phillips-LLC/Context-Engineering#61",
+    "adr": "0002-split-context-engineering-into-governance-and-implementation-repos.md"
+  }
+}

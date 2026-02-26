@@ -1,0 +1,9 @@
+{
+  "contract_repo": "Josh-Phillips-LLC/context-engineering-governance",
+  "contract_path": "contracts/governance-implementation-contract.json",
+  "contract_version": "1.0.0",
+  "supported_major": 1,
+  "source_commit": "880a8fb",
+  "synced_at": "2026-02-26",
+  "tracking_issue": "Josh-Phillips-LLC/Context-Engineering#61"
+}
