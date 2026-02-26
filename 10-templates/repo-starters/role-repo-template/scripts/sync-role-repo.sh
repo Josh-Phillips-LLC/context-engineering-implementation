@@ -381,6 +381,10 @@ fi
 PR_BODY_FILE="${WORK_DIR}/pr-body.md"
 managed_files_markdown="$(printf -- '- `%s`\n' "${managed_files[@]}")"
 cat > "$PR_BODY_FILE" <<PRBODY
+Primary-Issue-Ref: Refs #1
+Development-Linkage: Exception
+Development-Linkage-Evidence: Automated role sync from context-engineering-implementation workflow; routine role-repo sync operations do not open per-repo issue branches.
+
 Primary-Role: Implementation Specialist
 Reviewed-By-Role: Compliance Officer
 Executive-Sponsor-Approval: Not-Required
