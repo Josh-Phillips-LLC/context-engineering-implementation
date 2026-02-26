@@ -1,0 +1,156 @@
+services:
+  # GENERATED:BEGIN:SERVICES
+  implementation-workstation:
+    image: ghcr.io/${GHCR_OWNER:-josh-phillips-llc}/${GHCR_IMAGE_PREFIX:-context-engineering-workstation}-implementation-specialist:${GHCR_IMAGE_TAG:-latest}
+    container_name: implementation-workstation
+    pull_policy: always
+    volumes:
+      - implementation_projects_data:/workspace
+      - implementation_gh_config:/root/.config/gh
+      - implementation_git_config:/root/.config/git
+      - implementation_codex_home:/root/.codex
+    environment:
+      - GH_BOOTSTRAP_TOKEN=${GH_BOOTSTRAP_TOKEN:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - WORKSTATION_DEBUG=${WORKSTATION_DEBUG:-false}
+      - CODEX_HOME=/root/.codex
+      - ROLE_PROFILE=${ROLE_PROFILE:-implementation-specialist}
+      - ROLE_GITHUB_AUTH_MODE=${IMPLEMENTATION_ROLE_GITHUB_AUTH_MODE:-app}
+      - ROLE_GITHUB_APP_ID=${IMPLEMENTATION_ROLE_GITHUB_APP_ID:-2852927}
+      - ROLE_GITHUB_APP_INSTALLATION_ID=${IMPLEMENTATION_ROLE_GITHUB_APP_INSTALLATION_ID:-112286254}
+      - ROLE_GITHUB_APP_PRIVATE_KEY_PATH=${IMPLEMENTATION_ROLE_GITHUB_APP_PRIVATE_KEY_PATH:-}
+      - WORKSPACE_REPO_OWNER=${WORKSPACE_REPO_OWNER:-Josh-Phillips-LLC}
+      - WORKSPACE_REPO_URL=${IMPLEMENTATION_WORKSPACE_REPO_URL:-https://github.com/Josh-Phillips-LLC/context-engineering-role-implementation-specialist.git}
+      - WORKSPACE_REPO_DIR=/workspace/Projects/${IMPLEMENTATION_WORKSPACE_REPO_DIR_NAME:-context-engineering-role-implementation-specialist}
+      - AUTO_CLONE_WORKSPACE_REPO=${AUTO_CLONE_WORKSPACE_REPO:-true}
+      - ALLOW_FALLBACK_INSTRUCTIONS=${ALLOW_FALLBACK_INSTRUCTIONS:-false}
+
+    cap_add:
+      - ALL
+    privileged: true
+    init: true
+    entrypoint: ["/usr/local/bin/init-workstation.sh"]
+    command: ["sleep", "infinity"]
+
+  compliance-workstation:
+    image: ghcr.io/${GHCR_OWNER:-josh-phillips-llc}/${GHCR_IMAGE_PREFIX:-context-engineering-workstation}-compliance-officer:${GHCR_IMAGE_TAG:-latest}
+    container_name: compliance-workstation
+    pull_policy: always
+    profiles:
+      - compliance-officer
+    volumes:
+      - compliance_projects_data:/workspace
+      - compliance_gh_config:/root/.config/gh
+      - compliance_git_config:/root/.config/git
+      - compliance_codex_home:/root/.codex
+    environment:
+      - GH_BOOTSTRAP_TOKEN=${GH_BOOTSTRAP_TOKEN:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - WORKSTATION_DEBUG=${WORKSTATION_DEBUG:-false}
+      - CODEX_HOME=/root/.codex
+      - ROLE_PROFILE=compliance-officer
+      - ROLE_GITHUB_AUTH_MODE=${COMPLIANCE_ROLE_GITHUB_AUTH_MODE:-app}
+      - ROLE_GITHUB_APP_ID=${COMPLIANCE_ROLE_GITHUB_APP_ID:-2853078}
+      - ROLE_GITHUB_APP_INSTALLATION_ID=${COMPLIANCE_ROLE_GITHUB_APP_INSTALLATION_ID:-112284302}
+      - ROLE_GITHUB_APP_PRIVATE_KEY_PATH=${COMPLIANCE_ROLE_GITHUB_APP_PRIVATE_KEY_PATH:-}
+      - WORKSPACE_REPO_OWNER=${WORKSPACE_REPO_OWNER:-Josh-Phillips-LLC}
+      - WORKSPACE_REPO_URL=${COMPLIANCE_WORKSPACE_REPO_URL:-https://github.com/Josh-Phillips-LLC/context-engineering-role-compliance-officer.git}
+      - WORKSPACE_REPO_DIR=/workspace/Projects/${COMPLIANCE_WORKSPACE_REPO_DIR_NAME:-context-engineering-role-compliance-officer}
+      - AUTO_CLONE_WORKSPACE_REPO=${AUTO_CLONE_WORKSPACE_REPO:-true}
+      - ALLOW_FALLBACK_INSTRUCTIONS=${ALLOW_FALLBACK_INSTRUCTIONS:-false}
+
+    cap_add:
+      - ALL
+    privileged: true
+    init: true
+    entrypoint: ["/usr/local/bin/init-workstation.sh"]
+    command: ["sleep", "infinity"]
+
+  systems-architect-workstation:
+    image: ghcr.io/${GHCR_OWNER:-josh-phillips-llc}/${GHCR_IMAGE_PREFIX:-context-engineering-workstation}-systems-architect:${GHCR_IMAGE_TAG:-latest}
+    container_name: systems-architect-workstation
+    pull_policy: always
+    profiles:
+      - systems-architect
+    volumes:
+      - systems_architect_projects_data:/workspace
+      - systems_architect_gh_config:/root/.config/gh
+      - systems_architect_git_config:/root/.config/git
+      - systems_architect_codex_home:/root/.codex
+    environment:
+      - GH_BOOTSTRAP_TOKEN=${GH_BOOTSTRAP_TOKEN:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - WORKSTATION_DEBUG=${WORKSTATION_DEBUG:-false}
+      - CODEX_HOME=/root/.codex
+      - ROLE_PROFILE=systems-architect
+      - ROLE_GITHUB_AUTH_MODE=${SYSTEMS_ARCHITECT_ROLE_GITHUB_AUTH_MODE:-app}
+      - ROLE_GITHUB_APP_ID=${SYSTEMS_ARCHITECT_ROLE_GITHUB_APP_ID:-2853089}
+      - ROLE_GITHUB_APP_INSTALLATION_ID=${SYSTEMS_ARCHITECT_ROLE_GITHUB_APP_INSTALLATION_ID:-112285784}
+      - ROLE_GITHUB_APP_PRIVATE_KEY_PATH=${SYSTEMS_ARCHITECT_ROLE_GITHUB_APP_PRIVATE_KEY_PATH:-}
+      - WORKSPACE_REPO_OWNER=${WORKSPACE_REPO_OWNER:-Josh-Phillips-LLC}
+      - WORKSPACE_REPO_URL=${SYSTEMS_ARCHITECT_WORKSPACE_REPO_URL:-https://github.com/Josh-Phillips-LLC/context-engineering-role-systems-architect.git}
+      - WORKSPACE_REPO_DIR=/workspace/Projects/${SYSTEMS_ARCHITECT_WORKSPACE_REPO_DIR_NAME:-context-engineering-role-systems-architect}
+      - AUTO_CLONE_WORKSPACE_REPO=${AUTO_CLONE_WORKSPACE_REPO:-true}
+      - ALLOW_FALLBACK_INSTRUCTIONS=${ALLOW_FALLBACK_INSTRUCTIONS:-false}
+
+    cap_add:
+      - ALL
+    privileged: true
+    init: true
+    entrypoint: ["/usr/local/bin/init-workstation.sh"]
+    command: ["sleep", "infinity"]
+
+  hr-ai-agent-specialist-workstation:
+    image: ghcr.io/${GHCR_OWNER:-josh-phillips-llc}/${GHCR_IMAGE_PREFIX:-context-engineering-workstation}-hr-ai-agent-specialist:${GHCR_IMAGE_TAG:-latest}
+    container_name: hr-ai-agent-specialist-workstation
+    pull_policy: always
+    profiles:
+      - hr-ai-agent-specialist
+    volumes:
+      - hr_ai_agent_specialist_projects_data:/workspace
+      - hr_ai_agent_specialist_gh_config:/root/.config/gh
+      - hr_ai_agent_specialist_git_config:/root/.config/git
+      - hr_ai_agent_specialist_codex_home:/root/.codex
+    environment:
+      - GH_BOOTSTRAP_TOKEN=${GH_BOOTSTRAP_TOKEN:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - WORKSTATION_DEBUG=${WORKSTATION_DEBUG:-false}
+      - CODEX_HOME=/root/.codex
+      - ROLE_PROFILE=hr-ai-agent-specialist
+      - ROLE_GITHUB_AUTH_MODE=${HR_AI_AGENT_SPECIALIST_ROLE_GITHUB_AUTH_MODE:-app}
+      - ROLE_GITHUB_APP_ID=${HR_AI_AGENT_SPECIALIST_ROLE_GITHUB_APP_ID:-2885628}
+      - ROLE_GITHUB_APP_INSTALLATION_ID=${HR_AI_AGENT_SPECIALIST_ROLE_GITHUB_APP_INSTALLATION_ID:-110711332}
+      - ROLE_GITHUB_APP_PRIVATE_KEY_PATH=${HR_AI_AGENT_SPECIALIST_ROLE_GITHUB_APP_PRIVATE_KEY_PATH:-}
+      - WORKSPACE_REPO_OWNER=${WORKSPACE_REPO_OWNER:-Josh-Phillips-LLC}
+      - WORKSPACE_REPO_URL=${HR_AI_AGENT_SPECIALIST_WORKSPACE_REPO_URL:-https://github.com/Josh-Phillips-LLC/context-engineering-role-hr-ai-agent-specialist.git}
+      - WORKSPACE_REPO_DIR=/workspace/Projects/${HR_AI_AGENT_SPECIALIST_WORKSPACE_REPO_DIR_NAME:-context-engineering-role-hr-ai-agent-specialist}
+      - AUTO_CLONE_WORKSPACE_REPO=${AUTO_CLONE_WORKSPACE_REPO:-true}
+      - ALLOW_FALLBACK_INSTRUCTIONS=${ALLOW_FALLBACK_INSTRUCTIONS:-false}
+
+    cap_add:
+      - ALL
+    privileged: true
+    init: true
+    entrypoint: ["/usr/local/bin/init-workstation.sh"]
+    command: ["sleep", "infinity"]
+# GENERATED:END:SERVICES
+
+volumes:
+  # GENERATED:BEGIN:VOLUMES
+  implementation_projects_data:
+  implementation_gh_config:
+  implementation_git_config:
+  implementation_codex_home:
+  compliance_projects_data:
+  compliance_gh_config:
+  compliance_git_config:
+  compliance_codex_home:
+  systems_architect_projects_data:
+  systems_architect_gh_config:
+  systems_architect_git_config:
+  systems_architect_codex_home:
+  hr_ai_agent_specialist_projects_data:
+  hr_ai_agent_specialist_gh_config:
+  hr_ai_agent_specialist_git_config:
+  hr_ai_agent_specialist_codex_home:
+# GENERATED:END:VOLUMES

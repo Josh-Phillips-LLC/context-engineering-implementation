@@ -1,0 +1,221 @@
+name: Sync Role Repositories
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - governance.md
+      - 00-os/role-charters/**
+      - 10-templates/agent-instructions/**
+      - 10-templates/compliance-officer-pr-review-brief.md
+      - 10-templates/job-description-spec/**
+      - 10-templates/repo-starters/role-repo-template/templates/**
+      - 10-templates/repo-starters/role-repo-template/scripts/build-agent-job-description.py
+      - 10-templates/repo-starters/role-repo-template/scripts/render-role-repo-template.sh
+      - 10-templates/repo-starters/role-repo-template/scripts/sync-role-repo.sh
+      - .github/workflows/sync-role-repos.yml
+  workflow_dispatch:
+    inputs:
+      role:
+        description: Role slug to sync
+        required: true
+        type: choice
+        default: all
+        options:
+          # GENERATED:BEGIN:ROLE_CHOICES
+          - all
+          - implementation-specialist
+          - compliance-officer
+          - systems-architect
+          - hr-ai-agent-specialist
+# GENERATED:END:ROLE_CHOICES
+      owner:
+        description: Optional GitHub owner override
+        required: false
+        type: string
+      source_ref:
+        description: Optional source ref label for sync commit
+        required: false
+        type: string
+      dry_run:
+        description: Prepare sync commit only (no push, no PR)
+        required: false
+        type: boolean
+        default: false
+      no_pr:
+        description: Push sync branch only (skip PR creation)
+        required: false
+        type: boolean
+        default: false
+      auto_merge:
+        description: Request GitHub auto-merge on sync PRs
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # GENERATED:BEGIN:ROLE_MATRIX
+          - role_slug: implementation-specialist
+            repo_name: context-engineering-role-implementation-specialist
+            app_id_secret: IMPLEMENTATION_SPECIALIST_APP_ID
+            private_key_secret: IMPLEMENTATION_SPECIALIST_APP_PRIVATE_KEY
+          - role_slug: compliance-officer
+            repo_name: context-engineering-role-compliance-officer
+            app_id_secret: COMPLIANCE_OFFICER_APP_ID
+            private_key_secret: COMPLIANCE_OFFICER_APP_PRIVATE_KEY
+          - role_slug: systems-architect
+            repo_name: context-engineering-role-systems-architect
+            app_id_secret: SYSTEMS_ARCHITECT_APP_ID
+            private_key_secret: SYSTEMS_ARCHITECT_APP_PRIVATE_KEY
+          - role_slug: hr-ai-agent-specialist
+            repo_name: context-engineering-role-hr-ai-agent-specialist
+            app_id_secret: HR_AI_AGENT_SPECIALIST_APP_ID
+            private_key_secret: HR_AI_AGENT_SPECIALIST_APP_PRIVATE_KEY
+# GENERATED:END:ROLE_MATRIX
+
+    steps:
+      - name: Evaluate matrix role selection
+        id: role_filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_ROLE: ${{ github.event.inputs.role }}
+          MATRIX_ROLE: ${{ matrix.role_slug }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != "workflow_dispatch" ] || [ -z "${REQUESTED_ROLE:-}" ] || [ "$REQUESTED_ROLE" = "all" ] || [ "$REQUESTED_ROLE" = "$MATRIX_ROLE" ]; then
+            echo "run_sync=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_sync=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping matrix role $MATRIX_ROLE for requested role $REQUESTED_ROLE"
+          fi
+
+      - name: Resolve target owner
+        if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
+        id: owner
+        env:
+          INPUT_OWNER: ${{ github.event.inputs.owner }}
+          VARIABLE_OWNER: ${{ vars.ROLE_REPO_OWNER }}
+          FALLBACK_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          owner="$INPUT_OWNER"
+          if [ -z "$owner" ]; then
+            owner="$VARIABLE_OWNER"
+          fi
+          if [ -z "$owner" ]; then
+            owner="$FALLBACK_OWNER"
+          fi
+          if [ -z "$owner" ]; then
+            echo "Unable to resolve target role repo owner"
+            exit 1
+          fi
+          echo "owner=$owner" >> "$GITHUB_OUTPUT"
+
+      - name: Create role GitHub App token
+        if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
+        id: app_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets[matrix.app_id_secret] }}
+          private-key: ${{ secrets[matrix.private_key_secret] }}
+          owner: ${{ steps.owner.outputs.owner }}
+          repositories: ${{ matrix.repo_name }}
+
+      - name: Validate sync token is configured
+        if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "Missing role GitHub App token (check role app secrets)."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
+        uses: actions/checkout@v4
+
+      - name: Configure git auth for gh operations
+        if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        run: |
+          set -euo pipefail
+          gh auth status --hostname github.com
+          gh auth setup-git
+
+      - name: Publishability preflight
+        if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          SOURCE_REF_INPUT: ${{ github.event.inputs.source_ref }}
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          source_ref="$SOURCE_REF_INPUT"
+          if [ -z "$source_ref" ]; then
+            source_ref="$(printf '%s' "$GIT_SHA" | cut -c1-7)"
+          fi
+
+          args=(
+            --role-slug "${{ matrix.role_slug }}"
+            --owner "${{ steps.owner.outputs.owner }}"
+            --repo-name "${{ matrix.repo_name }}"
+            --source-ref "$source_ref"
+            --preflight-only
+          )
+
+          10-templates/repo-starters/role-repo-template/scripts/sync-role-repo.sh "${args[@]}"
+
+      - name: Sync role repository
+        if: ${{ steps.role_filter.outputs.run_sync == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          SOURCE_REF_INPUT: ${{ github.event.inputs.source_ref }}
+          DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
+          NO_PR_INPUT: ${{ github.event.inputs.no_pr }}
+          AUTO_MERGE_INPUT: ${{ github.event.inputs.auto_merge }}
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          source_ref="$SOURCE_REF_INPUT"
+          if [ -z "$source_ref" ]; then
+            source_ref="$(printf '%s' "$GIT_SHA" | cut -c1-7)"
+          fi
+          auto_merge="$AUTO_MERGE_INPUT"
+          if [ -z "$auto_merge" ]; then
+            auto_merge="true"
+          fi
+
+          args=(
+            --role-slug "${{ matrix.role_slug }}"
+            --owner "${{ steps.owner.outputs.owner }}"
+            --repo-name "${{ matrix.repo_name }}"
+            --source-ref "$source_ref"
+            --skip-preflight
+          )
+
+          if [ "$DRY_RUN_INPUT" = "true" ]; then
+            args+=(--dry-run)
+          fi
+
+          if [ "$NO_PR_INPUT" = "true" ]; then
+            args+=(--no-pr)
+          fi
+
+          if [ "$auto_merge" = "true" ] && [ "$DRY_RUN_INPUT" != "true" ] && [ "$NO_PR_INPUT" != "true" ]; then
+            args+=(--auto-merge)
+          fi
+
+          10-templates/repo-starters/role-repo-template/scripts/sync-role-repo.sh "${args[@]}"

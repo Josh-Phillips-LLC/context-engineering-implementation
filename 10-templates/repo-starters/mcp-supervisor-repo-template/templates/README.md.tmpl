@@ -1,0 +1,81 @@
+# {{REPO_NAME}}
+
+Containerized MCP supervisor service scaffold generated from Context-Engineering templates.
+
+## Generated Metadata
+
+- Source Ref: `{{SOURCE_REF}}`
+- Generated At (UTC): `{{GENERATED_AT_UTC}}`
+
+## Purpose
+
+This repository hosts a supervisor MCP service that accepts governed escalation requests from local worker agents via `ask_codex_supervisor`.
+
+## Contracts
+
+Canonical tool contracts are stored in `contracts/`:
+
+- `ask-codex-supervisor.request.schema.json`
+- `ask-codex-supervisor.response.schema.json`
+- `ask-codex-supervisor.tool.json`
+
+## Quick Start
+
+```bash
+cp .env.example .env
+
+# Build and run
+docker compose up --build
+```
+
+## Local Run (without Docker)
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python src/supervisor_mcp_server.py
+```
+
+## Environment
+
+- `SUPERVISOR_BIND_HOST`: Bind host for MCP runtime (default: `127.0.0.1`)
+- `SUPERVISOR_BIND_PORT`: Bind port for MCP runtime (default: `8787`)
+- `SUPERVISOR_TRANSPORT`: MCP transport (`stdio`, `sse`, `streamable-http`; default: `streamable-http`)
+- `SUPERVISOR_ENABLE_CODEX_PROXY`: Enables supervisor proxy mode (`true`/`false`, default: `false`)
+- `SUPERVISOR_CODEX_PROVIDER`: Supervisor backend provider (`cli` or `api`, default: `cli`)
+- `SUPERVISOR_CODEX_CLI_BIN`: CLI executable path/name (default: `codex`)
+- `SUPERVISOR_CODEX_CLI_TIMEOUT_SECONDS`: Timeout for `codex exec` calls (default: `90`)
+- `CODEX_API_KEY`: Codex API key used only when `SUPERVISOR_CODEX_PROVIDER=api`
+- `CODEX_MODEL`: Codex model identifier (default: `gpt-5`)
+- `CODEX_API_BASE_URL`: Codex/OpenAI API base URL (default: `https://api.openai.com/v1`)
+- `CODEX_API_RESPONSES_PATH`: API path for responses endpoint (default: `/responses`)
+- `CODEX_API_TIMEOUT_SECONDS`: HTTP timeout for Codex API calls (default: `30`)
+- `CODEX_MAX_OUTPUT_TOKENS`: Max output tokens requested from Codex (default: `600`)
+
+## Current Starter Behavior
+
+- Request and response payloads are schema-validated.
+- Default backend is local Codex CLI (`SUPERVISOR_CODEX_PROVIDER=cli`).
+- Optional backend is direct API (`SUPERVISOR_CODEX_PROVIDER=api`).
+- Proxy disabled or provider/auth/runtime failures are fail-safe (`decision: pause_for_human`).
+- Any provider/network/parsing/validation failure returns a schema-valid fail-safe `pause_for_human` response.
+
+## Two-Container Runtime Pattern
+
+- Container 1 (worker agent, e.g. Cline local LLM) calls this MCP service.
+- Container 2 (this supervisor) executes `ask_codex_supervisor` via configured provider.
+- For CLI mode, authenticate Codex CLI inside this container:
+
+```bash
+docker exec -it codex-supervisor-mcp codex login --device-auth
+docker exec codex-supervisor-mcp codex login status
+```
+
+- Security default is loopback bind (`127.0.0.1`). For inter-container networking, explicitly set:
+  - `SUPERVISOR_BIND_HOST=0.0.0.0`
+
+## Governance
+
+- Contract shape and policy expectations are governed by Context-Engineering.
+- Direct edits to contract schemas in this repository should be treated as generated drift unless intentionally promoted upstream.

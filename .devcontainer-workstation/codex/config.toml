@@ -1,0 +1,41 @@
+# Default Codex config for this workstation image.
+# Startup seeds /root/.codex/config.toml from this file only when missing.
+# If you change config inside the container, mirror that change here to keep defaults portable.
+
+model = "gpt-5.3-codex"
+model_reasoning_effort = "xhigh"
+
+approval_policy = "never"
+# Role workstations default to no approval prompts in isolated container environments.
+
+project_root_markers = [".git", ".hg", ".sl", ".github", ".ai"]
+project_doc_fallback_filenames = ["instructions.md", "copilot-instructions.md", "continue-instructions.md"]
+project_doc_max_bytes = 65536
+
+sandbox_mode = "danger-full-access"
+# Role workstations intentionally use full in-container access to avoid temp-path prompt failures.
+
+model_personality = "pragmatic"
+web_search = "live"
+
+[shell_environment_policy]
+inherit = "core"
+ignore_default_excludes = false
+exclude = ["AWS_*", "AZURE_*", "*_SESSION_*"]
+include_only = ["PATH", "HOME", "LANG", "LC_*", "TERM", "TMPDIR", "CODEX_HOME", "OPENAI_API_KEY"]
+set = { GIT_TERMINAL_PROMPT = "0" }
+experimental_use_profile = false
+
+[sandbox_workspace_write]
+exclude_tmpdir_env_var = false
+exclude_slash_tmp = false
+writable_roots = ["/"]
+network_access = true
+
+[features]
+shell_snapshot = false
+# Use "true" only if speed-up needed and ok with beta
+
+[mcp_servers.playwright]
+args = ["@playwright/mcp@latest"]
+command = "npx"

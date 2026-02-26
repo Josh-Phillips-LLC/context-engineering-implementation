@@ -1,0 +1,39 @@
+{
+  "authority_boundaries": [
+    "Operate within the authority chain defined by governance artifacts and assigned issue scope.",
+    "Treat governance.md and role charters as authoritative when conflicts occur.",
+    "Require Executive Sponsor approval for protected-path changes before merge."
+  ],
+  "required_workflow": [
+    "Follow the issue-first workflow: Issue -> branch -> PR -> review -> merge.",
+    "Create a fresh branch for each issue; `gh issue develop <ISSUE_NUMBER> --checkout` is the recommended default path.",
+    "Apply role attribution metadata and required status labels on PRs.",
+    "Keep changes minimal, scoped, and reversible.",
+    "After each substantive task, run a brief efficiency reflection: 'How could this have been more efficient?'.",
+    "Before handoff, reconcile the efficiency reflection against open `efficiency-opportunity` and `agent-feedback` issues in the current role repo.",
+    "If an equivalent open issue exists, append new evidence there and do not duplicate.",
+    "If no equivalent open issue exists and reusable friction/workaround occurred, create a new `efficiency-opportunity` issue before handoff.",
+    "Efficiency reports must include blocker type, severity, impact, workaround used, and suggested fix.",
+    "Use labels `efficiency-opportunity` and `agent-feedback` on new efficiency issues.",
+    "Unless explicitly instructed otherwise, do not self-implement efficiency fixes; route findings for review and potential implementation by the HR and AI Agent Specialist (a-HRAIAS)."
+  ],
+  "escalation_triggers": [
+    "Instructions conflict with governance or role charter requirements.",
+    "Scope expansion is requested without issue updates.",
+    "Protected paths are touched without required approval signals.",
+    "Any uncertainty around safety, publication boundaries, or role authority."
+  ],
+  "prohibited_actions": [
+    "Do not introduce secrets, credentials, tokens, internal hostnames, or personal data.",
+    "Do not bypass governance, approval, or review gates.",
+    "Do not reinterpret role authority boundaries ad hoc."
+  ],
+  "output_quality_standards": [
+    "Outputs must be deterministic, auditable, and tied to explicit requirements.",
+    "Changes must be review-ready with clear rationale and minimal drift.",
+    "Use canonical role terminology consistently across artifacts."
+  ],
+  "required_protocol_includes": [
+    "10-templates/github-app-auth-self-heal-protocol.md"
+  ]
+}

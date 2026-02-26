@@ -1,0 +1,226 @@
+name: Publish Role Workstation Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .devcontainer-workstation/**
+      - 10-templates/agent-instructions/**
+      - 10-templates/compliance-officer-pr-review-brief.md
+      - .github/workflows/publish-role-workstation-images.yml
+  workflow_run:
+    workflows: ["Sync Role Repositories"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: publish-role-workstation-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Skip if triggered by workflow_run and sync failed
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # GENERATED:BEGIN:ROLE_MATRIX
+          - role_profile: implementation-specialist
+            image_suffix: implementation-specialist
+            role_repo: context-engineering-role-implementation-specialist
+          - role_profile: compliance-officer
+            image_suffix: compliance-officer
+            role_repo: context-engineering-role-compliance-officer
+          - role_profile: systems-architect
+            image_suffix: systems-architect
+            role_repo: context-engineering-role-systems-architect
+          - role_profile: hr-ai-agent-specialist
+            image_suffix: hr-ai-agent-specialist
+            role_repo: context-engineering-role-hr-ai-agent-specialist
+# GENERATED:END:ROLE_MATRIX
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve role repository owner
+        id: role_repo_owner
+        env:
+          VARIABLE_OWNER: ${{ vars.ROLE_REPO_OWNER }}
+          FALLBACK_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          owner="$VARIABLE_OWNER"
+          if [ -z "$owner" ]; then
+            owner="$FALLBACK_OWNER"
+          fi
+          if [ -z "$owner" ]; then
+            echo "Unable to resolve role repository owner"
+            exit 1
+          fi
+          echo "owner=$owner" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout role repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.role_repo_owner.outputs.owner }}/${{ matrix.role_repo }}
+          path: role-repo
+          token: ${{ secrets.ROLE_REPO_READ_TOKEN || secrets.GITHUB_TOKEN }}
+          persist-credentials: false
+
+      - name: Validate role repository artifacts
+        run: |
+          set -euo pipefail
+          test -f "role-repo/AGENTS.md"
+          test -f "role-repo/.github/copilot-instructions.md"
+          test -f "role-repo/.vscode/settings.json"
+
+      - name: Validate role repository freshness
+        id: freshness_check
+        run: |
+          set -euo pipefail
+          expected_ref="$(git rev-parse --short HEAD)"
+          source_ref="$(grep -E "Source ref:" role-repo/AGENTS.md | head -1 | sed -E 's/.*Source ref: `([^`]+)`.*/\1/' || true)"
+          
+          echo "expected_ref=$expected_ref" >> "$GITHUB_OUTPUT"
+          echo "source_ref=$source_ref" >> "$GITHUB_OUTPUT"
+          
+          if [ -z "$source_ref" ]; then
+            echo "::error::Role repo AGENTS.md is missing a Source ref marker."
+            echo "::notice::Sync is likely still in progress or incomplete. Waiting for sync workflow to complete."
+            exit 1
+          fi
+          if [ "$source_ref" = "unknown" ]; then
+            echo "::error::Role repo AGENTS.md Source ref is set to 'unknown'."
+            echo "::notice::Sync workflow needs to run for this commit."
+            exit 1
+          fi
+          if [ "$source_ref" != "$expected_ref" ]; then
+            echo "::error::Role repo ${{ matrix.role_repo }} Source ref mismatch"
+            echo "Expected: $expected_ref"
+            echo "Found: $source_ref"
+            echo "::notice::Sync workflow for commit $expected_ref may still be running or needs to be triggered."
+            echo "::notice::Check sync-role-repos workflow: https://github.com/${{ github.repository }}/actions/workflows/sync-role-repos.yml"
+            
+            # If triggered by workflow_run, this means sync just completed but role repo isn't updated yet
+            if [ "${{ github.event_name }}" =  "workflow_run" ]; then
+              echo "::warning::Sync workflow completed but role repo not yet updated. This may indicate sync PR not yet merged."
+            fi
+            
+            exit 1
+          fi
+          
+          echo "✅ Role repository freshness validated: $source_ref"
+      
+      - name: Freshness failure guidance
+        if: failure() && steps.freshness_check.conclusion == 'failure'
+        run: |
+          echo "::notice title=Publish Blocked by Freshness Check::To resolve:"
+          echo "1. Check if sync-role-repos workflow is still running"
+          echo "2. If sync created a PR, merge it and wait for role repo to update"
+          echo "3. After sync completes and role repo is updated, re-run this workflow"
+          echo "4. View sync workflow runs: https://github.com/${{ github.repository }}/actions/workflows/sync-role-repos.yml"
+
+      - name: Prepare generated runtime role instructions
+        id: role_repo_source
+        run: |
+          set -euo pipefail
+          mkdir -p .devcontainer-workstation/generated/runtime-role-instructions
+          cp "role-repo/AGENTS.md" ".devcontainer-workstation/generated/runtime-role-instructions/${{ matrix.role_profile }}.md"
+          role_sha="$(git -C role-repo rev-parse --short HEAD)"
+          role_url="https://github.com/${{ steps.role_repo_owner.outputs.owner }}/${{ matrix.role_repo }}"
+          echo "sha=$role_sha" >> "$GITHUB_OUTPUT"
+          echo "url=$role_url" >> "$GITHUB_OUTPUT"
+          echo "Prepared generated runtime role instructions from ${role_url}@${role_sha}"
+
+      - name: Normalize package image name
+        id: image
+        run: |
+          owner="$(printf '%s' "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner}/context-engineering-workstation-${{ matrix.image_suffix }}"
+          echo "owner=${owner}" >> "$GITHUB_OUTPUT"
+          echo "name=${image}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authenticate to GHCR
+        # TODO(implementation-specialist): GHCR publish uses the repository automation identity
+        # (GITHUB_TOKEN) because GHCR write permissions are scoped to the workflow's repo
+        # and environment. Role GitHub App auth is not feasible here without separate
+        # app-granted package permissions and additional secret distribution.
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ matrix.image_suffix }}-latest
+            type=sha,format=short,prefix=${{ matrix.image_suffix }}-
+          labels: |
+            org.opencontainers.image.title=Context Engineering Role Workstation (${{ matrix.role_profile }})
+            org.opencontainers.image.description=Role-scoped workstation image baked from role-repo AGENTS for ${{ matrix.role_profile }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            io.context_engineering.role_profile=${{ matrix.role_profile }}
+            io.context_engineering.role_repo=${{ matrix.role_repo }}
+            io.context_engineering.role_repo_ref=${{ steps.role_repo_source.outputs.sha }}
+
+      - name: Build and publish role package
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer-workstation/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            IMAGE_ROLE_PROFILE=${{ matrix.role_profile }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Validate multi-arch manifest
+        run: |
+          set -euo pipefail
+          image="${{ steps.image.outputs.name }}:latest"
+          output="$(docker buildx imagetools inspect "$image")"
+          printf '%s' "$output" | grep -q "linux/amd64"
+          printf '%s' "$output" | grep -q "linux/arm64"
+          {
+            echo "### Manifest validation"
+            echo
+            echo "- Image: \`$image\`"
+            echo "- Platforms: linux/amd64, linux/arm64"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish summary
+        run: |
+          {
+            echo "### Published role package"
+            echo
+            echo "- Role: \`${{ matrix.role_profile }}\`"
+            echo "- Image: \`${{ steps.image.outputs.name }}\`"
+            echo "- Digest: \`${{ steps.build.outputs.digest }}\`"
+            echo "- Role repo source: \`${{ steps.role_repo_source.outputs.url }}@${{ steps.role_repo_source.outputs.sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
