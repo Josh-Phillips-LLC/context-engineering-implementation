@@ -37,10 +37,11 @@ From governance contract mirror in implementation:
 ## Migration Steps
 
 1. Keep role-repo owner and role app auth unchanged.
-2. Update implementation source artifacts and contract mirror files.
-3. Run preflight-only sync validation for each role.
-4. Execute workflow-dispatch sync runs role-by-role or all roles.
-5. Verify generated role repo PRs pass governance/compliance checks.
+2. Grant implementation repo access to role GitHub App org secrets (`*_APP_ID`, `*_APP_PRIVATE_KEY`) when org secret visibility is `selected`.
+3. Update implementation source artifacts and contract mirror files.
+4. Run preflight-only sync validation for each role.
+5. Execute workflow-dispatch or push-triggered sync runs role-by-role or all roles.
+6. Verify generated role repo PRs pass governance/compliance checks.
 
 ## Exit Criteria
 
