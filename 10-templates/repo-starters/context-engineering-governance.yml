@@ -7,11 +7,11 @@ schema_version: "1.0"
 repository: "<ORG>/<REPO>"
 
 governance:
-  owner_system: "Context-Engineering"
-  owner_repo: "Josh-Phillips-LLC/Context-Engineering"
+  owner_system: "Context-Engineering-Governance"
+  owner_repo: "Josh-Phillips-LLC/context-engineering-governance"
   state: "autonomous|transition|governed"
-  registry_ref: "00-os/governed-repos.yml"
-  policy_ref: "governance.md#repository-governance-adoption-model-ownership-states"
+  registry_ref: "https://github.com/Josh-Phillips-LLC/context-engineering-governance/blob/main/00-os/governed-repos.yml"
+  policy_ref: "https://github.com/Josh-Phillips-LLC/context-engineering-governance/blob/main/governance.md#repository-governance-adoption-model-ownership-states"
 
 controls:
   profile: "autonomous|transition|governed"
@@ -19,7 +19,7 @@ controls:
     - "Compliance Officer"
 
 evidence:
-  adoption_issue: "<https://github.com/Josh-Phillips-LLC/Context-Engineering/issues/NN>"
-  rollout_issue: "<https://github.com/Josh-Phillips-LLC/Context-Engineering/issues/NN>"
+  adoption_issue: "<https://github.com/Josh-Phillips-LLC/context-engineering-governance/issues/NN>"
+  rollout_issue: "<https://github.com/Josh-Phillips-LLC/context-engineering-governance/issues/NN>"
 
 last_reviewed_utc: "<YYYY-MM-DDTHH:MM:SSZ>"

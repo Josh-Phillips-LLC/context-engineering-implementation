@@ -7,7 +7,7 @@ Usage:
   scripts/request-pr-review.sh --repo <owner/repo> --pr <number> --reviewer <login>
 
 Example:
-  scripts/request-pr-review.sh --repo Josh-Phillips-LLC/Context-Engineering --pr 120 --reviewer joshphillipssr
+  scripts/request-pr-review.sh --repo Josh-Phillips-LLC/context-engineering-implementation --pr 120 --reviewer joshphillipssr
 USAGE
 }
 

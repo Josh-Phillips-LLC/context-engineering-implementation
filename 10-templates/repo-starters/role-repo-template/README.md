@@ -125,7 +125,7 @@ Script:
 
 - `scripts/sync-role-repo.sh`
 
-This script syncs managed role-repo artifacts from Context-Engineering source into an existing public role repository and opens or updates a sync PR.
+This script syncs managed role-repo artifacts from Context-Engineering-Implementation source into an existing public role repository and opens or updates a sync PR.
 
 Required args:
 
@@ -261,8 +261,8 @@ Behavior:
   - `context-engineering-role-compliance-officer`
   - `context-engineering-role-systems-architect`
 - Bakes role-repo `AGENTS.md` into `/etc/codex/runtime-role-instructions/<role>.md`.
-- Falls back to Context-Engineering instruction sources only when role-repo artifacts are unavailable in build context.
-- Fails publish if the role-repo `AGENTS.md` `Source ref` does not match the current `Context-Engineering` commit. Run the role-repo sync workflow and rerun publish after the sync PR merges.
+- Falls back to Context-Engineering-Implementation instruction sources only when role-repo artifacts are unavailable in build context.
+- Fails publish if the role-repo `AGENTS.md` `Source ref` does not match the current `Context-Engineering-Implementation` commit. Run the role-repo sync workflow and rerun publish after the sync PR merges.
 
 Naming and versioning conventions:
 

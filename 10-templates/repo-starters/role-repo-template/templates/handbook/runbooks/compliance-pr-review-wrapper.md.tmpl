@@ -21,7 +21,7 @@ scripts/co-pr-review-report.sh --repo <owner/repo> --pr <pr-number>
 
 ```bash
 scripts/co-pr-review.sh \
-  --repo Josh-Phillips-LLC/Context-Engineering \
+  --repo Josh-Phillips-LLC/context-engineering-implementation \
   --pr 176 \
   --request-changes \
   --body-file WIP/pr176_review.md
@@ -31,7 +31,7 @@ scripts/co-pr-review.sh \
 
 ```bash
 scripts/co-pr-review.sh \
-  --repo Josh-Phillips-LLC/Context-Engineering \
+  --repo Josh-Phillips-LLC/context-engineering-implementation \
   --pr 176 \
   --approve \
   --body "All governance checks pass."
@@ -41,7 +41,7 @@ scripts/co-pr-review.sh \
 
 ```bash
 scripts/co-pr-review.sh \
-  --repo Josh-Phillips-LLC/Context-Engineering \
+  --repo Josh-Phillips-LLC/context-engineering-implementation \
   --pr 176 \
   --comment \
   --body-file WIP/pr176_note.md
@@ -58,7 +58,7 @@ scripts/co-pr-review.sh \
 - Optionally re-check API output:
 
 ```bash
-env -u GH_TOKEN -u GITHUB_TOKEN gh pr view 176 -R Josh-Phillips-LLC/Context-Engineering --json reviews
+env -u GH_TOKEN -u GITHUB_TOKEN gh pr view 176 -R Josh-Phillips-LLC/context-engineering-implementation --json reviews
 ```
 
 ## Post-Incident Follow-up

@@ -8,7 +8,7 @@ Usage:
 
 Examples:
   00-os/scripts/bootstrap-governance-labels.sh --repo Josh-Phillips-LLC/mcp-auth-broker
-  00-os/scripts/bootstrap-governance-labels.sh --repo Josh-Phillips-LLC/Context-Engineering --dry-run
+  00-os/scripts/bootstrap-governance-labels.sh --repo Josh-Phillips-LLC/context-engineering-implementation --dry-run
 USAGE
 }
 
