@@ -1,0 +1,11 @@
+# Default ownership for governed execution surfaces in this repository.
+* @joshphillipssr
+
+# Split-governed execution and contract boundaries.
+/.context-engineering/governance.yml @joshphillipssr
+/00-os/** @joshphillipssr
+/10-templates/** @joshphillipssr
+/.github/workflows/** @joshphillipssr
+/contracts/** @joshphillipssr
+/CONTRACT_BOUNDARY.md @joshphillipssr
+/BOUNDARY_GATES.md @joshphillipssr
