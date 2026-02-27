@@ -8,7 +8,7 @@ Usage:
 
 Example:
   scripts/co-pr-review-report.sh \
-    --repo Josh-Phillips-LLC/Context-Engineering \
+    --repo Josh-Phillips-LLC/context-engineering-implementation \
     --pr 176 \
     --output WIP/pr176-review-report.md
 USAGE

@@ -1,11 +1,11 @@
 # MCP Supervisor Repo Template (Proposed)
 
-This starter scaffolds a dedicated, containerized MCP supervisor repository governed by Context-Engineering.
+This starter scaffolds a dedicated, containerized MCP supervisor repository governed by `context-engineering-governance` and sourced from `context-engineering-implementation`.
 
 ## Purpose
 
 - Provide a reusable repo scaffold for `ask_codex_supervisor` escalation.
-- Keep tool contract schemas canonical and synced from Context-Engineering.
+- Keep tool contract schemas canonical and synced from `context-engineering-implementation` (governance-authorized via mirrored upstream contract).
 - Establish a baseline container package layout for local and CI publishing.
 - Default generated runtime to long-lived network transport for container use.
 - Default generated backend to local Codex CLI with API mode optional.

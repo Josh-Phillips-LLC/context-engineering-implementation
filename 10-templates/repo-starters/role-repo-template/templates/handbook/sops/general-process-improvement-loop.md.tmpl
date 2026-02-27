@@ -27,8 +27,8 @@ Ensure that every agent execution includes systematic reflection on operational 
 
 ## Escalation Conditions
 
-- Blocker is a missing tool or feature (escalate to Context-Engineering).
-- Friction affects multiple agents or roles (link cross-role pattern to Context-Engineering implementation issue).
+- Blocker is a missing tool or feature (escalate to `context-engineering-implementation`).
+- Friction affects multiple agents or roles (link cross-role pattern to a `context-engineering-implementation` issue).
 - Suggested fix requires protected-path approval or governance change.
 - Pattern indicates systematic workflow misalignment across roles.
 
@@ -37,7 +37,7 @@ Ensure that every agent execution includes systematic reflection on operational 
 - Efficiency reflection is documented in session logs or commit messages where applicable.
 - Efficiency-opportunity issue filed if a reusable friction pattern is identified.
 - Issue includes all required fields (blocker type, severity, impact, workaround, fix suggestion).
-- Cross-role patterns are linked to Context-Engineering implementation issues.
+- Cross-role patterns are linked to `context-engineering-implementation` issues.
 - Feedback loop is closed with implementation status updates.
 
 ## References
