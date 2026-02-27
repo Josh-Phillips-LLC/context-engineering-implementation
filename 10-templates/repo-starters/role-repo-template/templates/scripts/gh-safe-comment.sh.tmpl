@@ -7,8 +7,8 @@ Usage:
   scripts/gh-safe-comment.sh --repo <owner/repo> (--pr <number> | --issue <number>) --body-file <path> [--allow-closed]
 
 Examples:
-  scripts/gh-safe-comment.sh --repo Josh-Phillips-LLC/Context-Engineering --pr 120 --body-file WIP/review.md
-  scripts/gh-safe-comment.sh --repo Josh-Phillips-LLC/Context-Engineering --issue 17 --body-file WIP/update.md
+  scripts/gh-safe-comment.sh --repo Josh-Phillips-LLC/context-engineering-implementation --pr 120 --body-file WIP/review.md
+  scripts/gh-safe-comment.sh --repo Josh-Phillips-LLC/context-engineering-implementation --issue 17 --body-file WIP/update.md
 USAGE
 }
 

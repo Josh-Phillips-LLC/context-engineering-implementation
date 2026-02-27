@@ -9,7 +9,7 @@ Usage:
     [--expected-login <login>]
 
 Examples:
-  scripts/co-pr-review.sh --repo Josh-Phillips-LLC/Context-Engineering --pr 176 --request-changes --body-file WIP/review.md
+  scripts/co-pr-review.sh --repo Josh-Phillips-LLC/context-engineering-implementation --pr 176 --request-changes --body-file WIP/review.md
   scripts/co-pr-review.sh --pr 176 --approve --body "All governance checks pass."
   scripts/co-pr-review.sh 176 --comment --body-file WIP/note.md
 
